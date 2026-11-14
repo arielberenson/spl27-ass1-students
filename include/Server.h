@@ -41,7 +41,7 @@ class SchedulingPolicy;
 class Server{
 private:
     Config readConfig(std::string configPath) const;
-
+    int currCycle;
     std::vector<GPU> gpus;
     std::vector<Model*> models;
     std::vector<Request*> nonSubmittedRequests;

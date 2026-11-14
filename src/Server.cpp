@@ -1,12 +1,64 @@
 #include <fstream>
 #include <stdexcept>
 #include "json.hpp"
-
 #include "Server.h"
+#include "SchedulingPolicy.h"
+#include "Model.h"
 
 using namespace std;
 using json = nlohmann::json;
 
+Server::Server(string configpath) : waitingRequests(), activeRequests(), nonSubmittedRequests(), currCycle(0) {
+    Config config = readConfig(configpath);
+
+    if (config.policy == "arrivalOrder")
+        config = new ArrivalOrderPolicy();
+    else if (config.policy == "shortestJob")
+        config = new ShortestJobPolicy();
+    else
+        config = new LongestPrefixPolicy();
+
+    for (const auto& gpuc : config.gpus){
+        GPU gpu{
+            gpuc.memoryBytes/config.blockSize,
+            config.blockSize 
+        };
+        gpus.push_back(gpu);
+    }
+    for (const auto& modelc : config.models){
+        Model* model = new Model{
+            modelc.id, modelc.embeddingSize
+        };
+        models.push_back(model);
+    }
+    for (RequestConfig requestc : config.requests){
+        Request* request = new Request{
+            requestc.id, 
+            //model,
+            requestc.admissionCycle,
+            requestc.prompt
+        };
+        nonSubmittedRequests.push_back(request);
+    }
+}
+
+void Server::serve(){
+    if (!step())
+        //pring summary line
+}
+
+bool Server::step(){
+    for (Request* request : nonSubmittedRequests){
+        if (request->getAdmissionCycle() == currCycle)
+            waitingRequests.push_back(request);
+    }
+    vector<const Request*> eligible(waitingRequests.begin(), waitingRequests.end());
+    vector<int> order = policy->choose(eligible, gpus);
+    for (int i=0; i<waitingRequests.size(); i++){
+        
+    }
+    
+}
 Config Server::readConfig(string configPath) const{
     std::ifstream input(configPath);
     json config;
