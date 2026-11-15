@@ -55,8 +55,12 @@ bool Server::step(){
     vector<const Request*> eligible(waitingRequests.begin(), waitingRequests.end());
     vector<int> order = policy->choose(eligible, gpus);
     for (int i=0; i<waitingRequests.size(); i++){
+        bool admitted = admitRequest(waitingRequests[i]);
         
     }
+    
+}
+bool admitRequest(Request* request){
     
 }
 Config Server::readConfig(string configPath) const{
