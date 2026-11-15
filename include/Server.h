@@ -51,6 +51,7 @@ private:
 public:
     Server(std::string configPath);
     bool step();
+    bool admitRequest(Request *request);
     void serve();
 };
 

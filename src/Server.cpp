@@ -60,8 +60,22 @@ bool Server::step(){
     }
     
 }
-bool admitRequest(Request* request){
+bool Server::admitRequest(Request* request){
     
+    std::vector<PrefixMatch> gpuPrefixes;
+    for (size_t i=0; i<gpus.size();i++){
+        //check if there are enough slots, need for new blocks and idle
+        if (gpus[i].availableSlots() >= request->getBlocksForMemory(request->getNeededMemory(gpus[i])
+        + gpus[i].)
+        //if there are then push back the longest cache prefix for each gpu
+            gpuPrefixes.push_back(gpus[i].findLongestCachedPrefix(
+                request->getModel().getId()
+                std::size_t embeddingSize,
+                request->getCacheableTokens()
+            ));
+    }
+    //sort the gpus by their longest cached prefix
+    std::sort()
 }
 Config Server::readConfig(string configPath) const{
     std::ifstream input(configPath);
